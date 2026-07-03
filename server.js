@@ -187,20 +187,34 @@ const OPENAI_TOOLS = TOOLS.map((t) => ({
   function: { name: t.name, description: t.description, parameters: t.input_schema },
 }));
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function callOpenAI(messages) {
-  const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${OPENAI_KEY}` },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
-      tools: OPENAI_TOOLS,
-      tool_choice: "auto",
-      max_tokens: 1024,
-    }),
-  });
-  if (!resp.ok) throw new Error(`OpenAI API ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
-  return resp.json();
+  // Retry on 429 rate limits with backoff (low-tier OpenAI orgs allow very few requests/min).
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${OPENAI_KEY}` },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+        tools: OPENAI_TOOLS,
+        tool_choice: "auto",
+        max_tokens: 1024,
+      }),
+    });
+    if (resp.ok) return resp.json();
+    const body = await resp.text();
+    if (resp.status === 429 && attempt < 5) {
+      const m = body.match(/try again in ([\d.]+)(ms|s)/i);
+      let waitMs = m ? parseFloat(m[1]) * (m[2].toLowerCase() === "ms" ? 1 : 1000) : 5000 * (attempt + 1);
+      waitMs = Math.min(waitMs + 500, 25000);
+      console.warn(`OpenAI 429 — retrying in ${Math.round(waitMs)}ms (attempt ${attempt + 1})`);
+      await sleep(waitMs);
+      continue;
+    }
+    throw new Error(`OpenAI API ${resp.status}: ${body.slice(0, 300)}`);
+  }
 }
 
 async function handleChatOpenAI(messages) {
