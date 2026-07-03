@@ -85,6 +85,7 @@ body {
 .msg.error { background: #fdf0ef; border: 1px solid #f3d2ce; color: #8c3a30; }
 
 .typing { display: inline-flex; gap: 5px; padding: 14px 16px; background: var(--white); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 6px; }
+.typing[hidden] { display: none; }
 .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--green-500); animation: blink 1.2s infinite; }
 .typing span:nth-child(2) { animation-delay: .2s; }
 .typing span:nth-child(3) { animation-delay: .4s; }
