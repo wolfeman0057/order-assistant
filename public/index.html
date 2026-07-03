@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Order Assistant</title>
+  <meta name="description" content="AI-powered order status, tracking and returns assistant" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0e7a4a" />
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Orders" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name" id="screen-title">Order Assistant</span>
+    </div>
+    <span class="verified-chip" id="verified-chip" hidden>✓ <span id="verified-chip-name"></span></span>
+  </header>
+
+  <main id="screens">
+    <!-- ASSISTANT -->
+    <section class="screen active" id="screen-assistant">
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="chat-day">Today</div>
+        <div id="chat-messages"></div>
+        <div class="typing" id="typing" hidden>
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+      <form class="composer" id="composer" autocomplete="off">
+        <input id="chat-input" type="text" placeholder="Ask about an order…" enterkeyhint="send" />
+        <button type="submit" id="send-btn" aria-label="Send">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ORDERS -->
+    <section class="screen" id="screen-orders">
+      <div class="screen-pad" id="orders-content">
+        <div class="empty-state">
+          <div class="empty-icon">📦</div>
+          <h2>No orders to show yet</h2>
+          <p>Verify your identity with the Assistant first — just ask about your order and confirm your email. Your orders will appear here.</p>
+          <button class="primary-btn" data-goto="assistant">Chat with Assistant</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RETURNS -->
+    <section class="screen" id="screen-returns">
+      <div class="screen-pad">
+        <div class="card">
+          <h2>Start a return</h2>
+          <p class="muted">Enter your order details and we'll get a return started right away. You can also just ask the Assistant.</p>
+          <form id="return-form">
+            <label>Order ID
+              <input type="text" id="return-order-id" placeholder="e.g. ORD-1003" required />
+            </label>
+            <label>Email on the order
+              <input type="email" id="return-email" placeholder="you@email.com" required />
+            </label>
+            <label>Reason for return
+              <textarea id="return-reason" rows="3" placeholder="Tell us what went wrong…" required></textarea>
+            </label>
+            <button type="submit" class="primary-btn">Submit return</button>
+          </form>
+        </div>
+        <div id="return-result"></div>
+      </div>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section class="screen" id="screen-account">
+      <div class="screen-pad" id="account-content">
+        <div class="empty-state">
+          <div class="empty-icon">👤</div>
+          <h2>Not verified yet</h2>
+          <p>Once you confirm your email with the Assistant, your profile will show up here.</p>
+          <button class="primary-btn" data-goto="assistant">Chat with Assistant</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab active" data-tab="assistant">
+      <svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.9 2 11.7c0 2.7 1.4 5.1 3.6 6.7-.2.9-.7 2.3-1.6 3.3 1.9-.3 3.5-1 4.6-1.7 1.1.3 2.2.4 3.4.4 5.5 0 10-3.9 10-8.7S17.5 3 12 3z"/></svg>
+      <span>Assistant</span>
+    </button>
+    <button class="tab" data-tab="orders">
+      <svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8zm-9-2.7L18.9 9 12 12.7 5.1 9 12 5.3zM5 10.9l6 3.3v5.6l-6-3.3v-5.6zm8 8.9v-5.6l6-3.3v5.6l-6 3.3z"/></svg>
+      <span>Orders</span>
+    </button>
+    <button class="tab" data-tab="returns">
+      <svg viewBox="0 0 24 24"><path d="M12.5 8V5.6c0-.5-.6-.8-1-.4L7 9.5c-.3.3-.3.7 0 1l4.5 4.3c.4.4 1 .1 1-.4V12c3.5 0 6 1.2 7.5 3.9-.5-4.5-3.5-7.9-7.5-7.9z"/><path d="M4 4h2v16H4z"/></svg>
+      <span>Returns</span>
+    </button>
+    <button class="tab" data-tab="account">
+      <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5z"/></svg>
+      <span>Account</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
