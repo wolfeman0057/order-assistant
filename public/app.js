@@ -30,7 +30,8 @@
   function addMsg(text, who) {
     const div = document.createElement("div");
     div.className = "msg " + who;
-    div.textContent = text;
+    // Strip any stray markdown the model emits; UI renders plain text.
+    div.textContent = String(text).replace(/\*\*(.*?)\*\*/g, "$1").replace(/^#+\s*/gm, "");
     chatMessages.appendChild(div);
     chatScroll.scrollTop = chatScroll.scrollHeight;
     return div;
