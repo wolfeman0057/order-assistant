@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: order-assistant
+    runtime: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node server.js"
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MODEL
+        value: gpt-4o

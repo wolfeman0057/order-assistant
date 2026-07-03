@@ -1,0 +1,14 @@
+{
+  "name": "order-assistant",
+  "version": "1.0.0",
+  "description": "Order Assistant - AI customer service agent PWA (BIA 658 Project 1)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node scripts/test-agent.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}
