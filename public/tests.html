@@ -115,7 +115,9 @@ document.getElementById("run").onclick = async () => {
         finalReply = data.reply;
         transcript.push({ user: turn, assistant: data.reply });
       }
-      verdict = evaluate(t, finalReply);
+      // Evaluate against the combined text of all assistant turns — a correct
+      // answer in an earlier turn (e.g. before a verification exchange) still counts.
+      verdict = evaluate(t, transcript.map(x => x.assistant).join(" \n "));
     } catch (err) {
       verdict = { pass: false, missing: [], forbidden: [], error: err.message };
       finalReply = "ERROR: " + err.message;
