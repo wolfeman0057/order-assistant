@@ -301,14 +301,22 @@ function readBody(req) {
   });
 }
 
+// CORS: allow the GitHub Pages frontend (and any static host) to call the API.
+const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
+  "access-control-allow-headers": "content-type",
+};
+
 const json = (res, status, body) => {
-  res.writeHead(status, { "content-type": "application/json" });
+  res.writeHead(status, { "content-type": "application/json", ...CORS });
   res.end(JSON.stringify(body));
 };
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
   try {
+    if (req.method === "OPTIONS") { res.writeHead(204, CORS); return res.end(); }
     if (url.pathname === "/api/welcome") return json(res, 200, { welcome: WELCOME });
 
     if (url.pathname === "/api/chat" && req.method === "POST") {
